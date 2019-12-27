@@ -8,7 +8,7 @@
 #define IN2   12           // L298N IN2 Back motors                GPIO12(D6)
 
 
-//#include <SoftwareSerial.h> 
+//#include <SoftwareSerial.h>
 
 // Load Wi-Fi library
 #include <ESP8266WiFi.h>
