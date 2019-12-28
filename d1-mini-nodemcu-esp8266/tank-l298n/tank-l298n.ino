@@ -1,4 +1,4 @@
-// D1 Mini NodeMCU Based WIFI Controlled Car//
+// D1 Mini NodeMCU Based WIFI Controlled Tank//
 
 #define ENB   4            // L298N ENB Enable/speed Front motors  GPIO4(D2)
 #define IN3   2            // L298N IN3 motors Right               GPIO2(D4)
@@ -30,11 +30,11 @@ volatile int watchdogCount = 0; //A variable, which its value can be changed by 
                                 //scope of current code at any time. In this case, watchdogCount
                                 //is changed by ISRwatchdog and the loop function.
 
-const int MIN_SPEED  = 400;
-const int MAX_SPEED  = 1400;
-const int STEP_SPEED = 50;
-const int TURN_SPEED = 1000;
-const int BACK_SPEED = 600;
+const int MIN_SPEED  = 1000;
+const int MAX_SPEED  = 2500;
+const int STEP_SPEED = 200;
+const int TURN_SPEED = 2000;
+const int BACK_SPEED = 1000;
 const int STOP_MULTIPLY = 2;
 const int WATCHDOG_COUNT_MAX = 5;
 
@@ -52,7 +52,7 @@ void ISRwatchdog() { //Interupt Service Routine Watchdog
 
 void setup() {
   Serial.begin(115200); //To connect to the serial moniter
-  secondTick.attach(s1, ISRwatchdog); // Registers the watchdog: 1st argument in seconds after which the ISRwathdog() executes
+  secondTick.attach(1, ISRwatchdog); // Registers the watchdog: 1st argument in seconds after which the ISRwathdog() executes
                                        // 1 (seconds) is the time interval between the invocations                                   
 
   // Initialize the output variables as outputs
@@ -114,28 +114,35 @@ void loop() {
                 curSpeed = curSpeed + STEP_SPEED;
               }
               Serial.println(curSpeed);
-              MotorB_Run(curSpeed);
+              MotorR_Run(curSpeed);
+              MotorL_Run(curSpeed);
             } else if (header.indexOf("GET /S") >= 0) {
               Serial.println("S");
               if (curSpeed > MIN_SPEED) {
                 curSpeed = curSpeed - STOP_MULTIPLY * STEP_SPEED;
                 Serial.println(curSpeed);
-                MotorB_Run(curSpeed);
+                MotorR_Run(curSpeed);
+                MotorL_Run(curSpeed);
               } else {
-                MotorB_Run(0);
+                MotorR_Run(0);
+                MotorL_Run(0);
               }
             } else if (header.indexOf("GET /B") >= 0) { // Reverse
               Serial.println("B");
-              MotorB_Run(-BACK_SPEED);
+              MotorR_Run(-BACK_SPEED);
+              MotorL_Run(-BACK_SPEED);
             } else if (header.indexOf("GET /L") >= 0) { // Left
               Serial.println("L");
-              MotorF_Run(TURN_SPEED);
+              MotorL_Run(-TURN_SPEED);
+              MotorR_Run(TURN_SPEED);
             } else if (header.indexOf("GET /M") >= 0) {
               Serial.println("M");
-              MotorF_Run(0);
+              MotorL_Run(0);
+              MotorR_Run(0);
             } else if (header.indexOf("GET /R") >= 0) {
               Serial.println("R");
-              MotorF_Run(-TURN_SPEED);
+              MotorL_Run(TURN_SPEED);
+              MotorR_Run(-TURN_SPEED);
             } else {
 
               // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
@@ -219,7 +226,7 @@ void loop() {
 }
 
 
-void MotorF_Run(int spd){
+void MotorL_Run(int spd){
   if (spd>0){
     digitalWrite(IN3, HIGH);
     digitalWrite(IN4, LOW);
@@ -231,7 +238,7 @@ void MotorF_Run(int spd){
   }
 }
 
-void MotorB_Run(int spd){
+void MotorR_Run(int spd){
   if (spd>0){
     digitalWrite(IN1, HIGH);
     digitalWrite(IN2, LOW);
