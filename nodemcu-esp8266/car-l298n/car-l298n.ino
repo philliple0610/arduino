@@ -52,7 +52,7 @@ void ISRwatchdog() { //Interupt Service Routine Watchdog
 
 void setup() {
   Serial.begin(115200); //To connect to the serial moniter
-  secondTick.attach(s1, ISRwatchdog); // Registers the watchdog: 1st argument in seconds after which the ISRwathdog() executes
+  secondTick.attach(1, ISRwatchdog); // Registers the watchdog: 1st argument in seconds after which the ISRwathdog() executes
                                        // 1 (seconds) is the time interval between the invocations                                   
 
   // Initialize the output variables as outputs
